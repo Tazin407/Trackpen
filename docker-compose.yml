@@ -1,0 +1,12 @@
+services:
+  db-server:
+    image: postgres:15
+    environment: 
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "5432:5432"        # expose to host machine
+    volumes:
+      - my-db-data:/var/lib/postgresql/data
+
+volumes:
+  my-db-data:
