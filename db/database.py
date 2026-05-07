@@ -20,7 +20,7 @@ def get_db():
         
 try:
     with engine.connect() as conn:
-        conn.execute(text("SELECT 1"))
+        conn.execute(text("SELECT 1")) # text() is a SQLAlchemy function that wraps a raw SQL string
     print("Database connection successful!")
 except Exception as e:
     print(f"Database connection failed: {e}")

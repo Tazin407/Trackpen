@@ -5,6 +5,10 @@ from sqlalchemy import pool
 
 from alembic import context
 
+from db import Base
+import models  # noqa - ensures User table is registered on Base.metadata
+target_metadata = Base.metadata
+
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
