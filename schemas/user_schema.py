@@ -1,24 +1,35 @@
-from pydantic import BaseModel, EmailStr, Field
-from datetime import datetime, timezone
+from pydantic import BaseModel, EmailStr
 
 
-class UserSchema(BaseModel):
-    # id: int
-    username: str | None = None
+class UserCreate(BaseModel):
+    username: str
     email: EmailStr
-    # hashed_password: str
     password: str
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+
+# Backward compatibility alias
+UserSchema = UserCreate
 
 
 class UserOut(BaseModel):
     id: int
     username: str
     email: EmailStr
-    
+    access_token: str
+    refresh_token: str
+
+    class Config:
+        from_attributes = True
+
+
 class UserAuth(BaseModel):
     email: EmailStr
     password: str
 
 
-    
+class TokenRefresh(BaseModel):
+    refresh_token: str
+
+
+class MessageResponse(BaseModel):
+    message: str

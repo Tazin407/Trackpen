@@ -9,5 +9,5 @@ app.include_router(users.router)
 
 
 @app.get("/health")
-def root():
-    return {"Success": "Project running successfully"}
+def health():
+    return {"status": "ok"}
