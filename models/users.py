@@ -1,5 +1,4 @@
 from datetime import datetime
-# from pydantic import BaseModel, EmailStr, Field
 from sqlalchemy import Column, Integer, String, DateTime
 from db.database import Base
 
