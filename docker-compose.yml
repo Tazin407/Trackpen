@@ -3,10 +3,25 @@ services:
     image: postgres:15
     environment: 
       POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: fastapi  
     ports:
       - "5432:5432"        # expose to host machine
     volumes:
       - my-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      retries: 5
+
+  backend:
+      build: . # <--- This tells Compose to look for your Dockerfile in the current directory
+      ports:
+        - "8000:8000"
+      environment:
+        - DB_HOST=db-server # < You can use the service name "db-server" as the URL
+      depends_on:
+        db-server:
+          condition: service_healthy
 
 volumes:
   my-db-data:
