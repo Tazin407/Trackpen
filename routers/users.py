@@ -4,7 +4,7 @@ from typing import Annotated
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 from models.users import User
-from schemas.user_schema import UserSchema, UserOut, UserAuth, TokenRefresh, MessageResponse
+from schemas.user_schema import UserAuth, TokenRefresh, MessageResponse, UserSignupResponse, UserLoginResponse, UserCreate
 from db.database import get_db
 from core.utils import (
     get_hashed_password,
@@ -23,8 +23,8 @@ router = APIRouter(prefix="/auth", tags=["auth"])
 bearer_scheme = HTTPBearer()
 
 
-@router.post("/register", summary="Create new user", response_model=UserOut, status_code=status.HTTP_201_CREATED)
-def create_user(data: UserSchema, db: Annotated[Session, Depends(get_db)]):
+@router.post("/register", summary="Create new user", response_model=UserSignupResponse, status_code=status.HTTP_201_CREATED)
+def create_user(data: UserCreate, db: Annotated[Session, Depends(get_db)]):
     if db.execute(select(User).where(User.email == data.email)).first():
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email already registered")
     if db.execute(select(User).where(User.username == data.username)).first():
@@ -48,7 +48,7 @@ def create_user(data: UserSchema, db: Annotated[Session, Depends(get_db)]):
     }
 
 
-@router.post("/login", summary="User login", response_model=UserOut)
+@router.post("/login", summary="User login", response_model=UserLoginResponse)
 def login(data: UserAuth, db: Annotated[Session, Depends(get_db)]):
     user = db.execute(select(User).where(User.email == data.email)).scalar_one_or_none()
     if not user or not verify_password(data.password, user.hashed_password):
@@ -58,13 +58,13 @@ def login(data: UserAuth, db: Annotated[Session, Depends(get_db)]):
     user.refresh_token = refresh_token
     db.commit()
     return {
-        "id": user.id,
+        "user_id": user.id,
         "access_token": create_access_token(user.email),
-        "refresh_token": refresh_token,
+        "refresh_token": user.refresh_token,
     }
 
 
-@router.post("/refresh", summary="Refresh access token", response_model=UserOut)
+@router.post("/refresh", summary="Refresh access token", response_model=UserLoginResponse)
 def refresh_token(data: TokenRefresh, db: Annotated[Session, Depends(get_db)]):
     email = decode_token(data.refresh_token, JWT_REFRESH_SECRET_KEY)
     user = db.execute(select(User).where(User.email == email)).scalar_one_or_none()
@@ -75,9 +75,9 @@ def refresh_token(data: TokenRefresh, db: Annotated[Session, Depends(get_db)]):
     user.refresh_token = new_refresh_token
     db.commit()
     return {
-        "id": user.id,
+        "user_id": user.id,
         "access_token": create_access_token(user.email),
-        "refresh_token": new_refresh_token,
+        "refresh_token": user.refresh_token,
     }
 
 

@@ -11,7 +11,7 @@ class UserCreate(BaseModel):
 UserSchema = UserCreate
 
 
-class UserOut(BaseModel):
+class UserSignupResponse(BaseModel):
     id: int
     username: str
     email: EmailStr
@@ -20,6 +20,18 @@ class UserOut(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class UserLoginResponse(BaseModel):
+    user_id: int
+    access_token: str
+    refresh_token: str
+
+
+# Backward compatibility alias
+UserOut = UserSignupResponse
+
+
 
 
 class UserAuth(BaseModel):
